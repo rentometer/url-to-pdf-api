@@ -4,6 +4,7 @@ const express = require('express');
 const render = require('./http/render-http');
 const config = require('./config');
 const logger = require('./util/logger')(__filename);
+const createConcurrencyLimiter = require('./middleware/concurrency-limiter');
 const { renderQuerySchema, renderBodySchema, sharedQuerySchema } = require('./util/validation');
 
 function createRouter() {
@@ -26,6 +27,13 @@ function createRouter() {
     logger.warn('Warning: no authentication required to use the API');
   }
 
+  // Single shared limiter — both routes share the same in-flight budget.
+  const renderLimiter = createConcurrencyLimiter({
+    maxConcurrent: config.MAX_CONCURRENT_RENDERS,
+    maxQueueSize: config.RENDER_QUEUE_MAX,
+  });
+  logger.info(`Render concurrency cap: ${config.MAX_CONCURRENT_RENDERS} active, ${config.RENDER_QUEUE_MAX} queued`);
+
   const getRenderSchema = {
     query: renderQuerySchema,
     options: {
@@ -33,7 +41,7 @@ function createRouter() {
       allowUnknownQuery: false,
     },
   };
-  router.get('/api/render', validate(getRenderSchema), render.getRender);
+  router.get('/api/render', validate(getRenderSchema), renderLimiter, render.getRender);
 
   const postRenderSchema = {
     body: renderBodySchema,
@@ -47,7 +55,7 @@ function createRouter() {
       contextRequest: true,
     },
   };
-  router.post('/api/render', validate(postRenderSchema), render.postRender);
+  router.post('/api/render', validate(postRenderSchema), renderLimiter, render.postRender);
 
   router.get('/healthcheck', (req, res) => res.status(200).send('OK'));
 
