@@ -38,8 +38,8 @@ async function getFullPageHeight(page) {
   return height;
 }
 
-async function render(_opts = {}) {
-  const opts = _.merge({
+function getDefaultRenderOpts() {
+  return {
     cookies: [],
     scrollPage: false,
     emulateScreenMedia: true,
@@ -50,7 +50,8 @@ async function render(_opts = {}) {
       height: 1200,
     },
     goto: {
-      waitUntil: 'networkidle0',
+      waitUntil: config.RENDER_WAIT_UNTIL,
+      timeout: config.RENDER_GOTO_TIMEOUT_MS,
     },
     output: 'pdf',
     pdf: {
@@ -62,7 +63,11 @@ async function render(_opts = {}) {
       fullPage: true,
     },
     failEarly: false,
-  }, _opts);
+  };
+}
+
+async function render(_opts = {}) {
+  const opts = _.merge(getDefaultRenderOpts(), _opts);
 
   if ((_.get(_opts, 'pdf.width') && _.get(_opts, 'pdf.height')) || _.get(opts, 'pdf.fullPage')) {
     // pdf.format always overrides width and height, so we must delete it
@@ -248,4 +253,5 @@ function logOpts(opts) {
 
 module.exports = {
   render,
+  getDefaultRenderOpts,
 };

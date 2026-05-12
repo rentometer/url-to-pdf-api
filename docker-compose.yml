@@ -1,0 +1,32 @@
+# Local-only. Heroku is unchanged; this only exists so rentometer2's dev
+# container can hit a real PDF service instead of the fake-print stub.
+#
+# Run from this directory:
+#   docker compose up --build
+# Then from the host or from rentometer2's web container:
+#   curl 'http://localhost:9000/api/render?url=https://example.com' -o out.pdf
+#
+# rentometer2 reaches this via `host.docker.internal:9000` (Docker Desktop on
+# macOS routes that name to the host). No shared network needed.
+services:
+  url-to-pdf-api:
+    build: .
+    ports:
+      - "9000:9000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: development
+      PORT: 9000
+      ALLOW_HTTP: "true"
+      # Use Debian's chromium (installed in the image) instead of Puppeteer's
+      # bundled binary — see Dockerfile for why.
+      BROWSER_EXECUTABLE_PATH: /usr/bin/chromium
+    # Render-control knobs added on the printshop-render-controls branch.
+    # Uncomment to override the defaults baked into src/config.
+    #  RENDER_WAIT_UNTIL: networkidle2
+    #  RENDER_GOTO_TIMEOUT_MS: "25000"
+    #  MAX_CONCURRENT_RENDERS: "10"
+    #  RENDER_QUEUE_MAX: "50"
+    restart: unless-stopped
