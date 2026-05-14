@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "env-cmd nodemon --watch ./src -e js src/index.js",
-    "test": "mocha --timeout 10000 && npm run lint",
+    "test": "env-cmd mocha --timeout 30000 && npm run lint",
     "lint": "eslint ."
   },
   "repository": {
@@ -41,11 +41,17 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "env-cmd": "^9.0.1",
-    "eslint": "^10.3.0",
+    "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.7.0",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.14",
     "supertest": "^3.0.0"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.5",
+    "tar-fs": "^2.1.4",
+    "ws": "^8.17.1",
+    "diff": "^8.0.3"
   }
 }

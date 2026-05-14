@@ -19,7 +19,7 @@ function fakeRes() {
   return {
     on(evt, fn) { handlers[evt].push(fn); return this; },
     once(evt, fn) { handlers[evt].push(fn); return this; },
-    emit(evt) { handlers[evt].forEach(fn => fn()); },
+    emit(evt) { handlers[evt].forEach((fn) => fn()); },
     status(code) { statusCode = code; return this; },
     send() { this.emit('finish'); },
     end() { this.emit('finish'); },
