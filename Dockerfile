@@ -24,10 +24,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 COPY package.json package-lock.json ./
-# --legacy-peer-deps: eslint-config-airbnb-base@15 caps at eslint 8 but the
-# devDeps pin eslint@10. The conflict is dev-only (lint); keep the lockfile as
-# resolved on the host.
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 COPY src ./src
 
