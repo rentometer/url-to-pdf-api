@@ -3,7 +3,6 @@ const _ = require('lodash');
 const config = require('../config');
 const logger = require('../util/logger')(__filename);
 
-
 async function createBrowser(opts) {
   const browserOpts = {
     ignoreHTTPSErrors: opts.ignoreHttpsErrors,
@@ -87,7 +86,6 @@ async function render(_opts = {}) {
     logger.error(err.stack);
     browser.close();
   });
-
 
   this.failedResponses = [];
   page.on('requestfailed', (request) => {
@@ -184,7 +182,7 @@ async function render(_opts = {}) {
       // This is done because puppeteer throws an error if fullPage and clip is used at the same
       // time even though clip is just empty object {}
       const screenshotOpts = _.cloneDeep(_.omit(opts.screenshot, ['clip']));
-      const clipContainsSomething = _.some(opts.screenshot.clip, val => !_.isUndefined(val));
+      const clipContainsSomething = _.some(opts.screenshot.clip, (val) => !_.isUndefined(val));
       if (clipContainsSomething) {
         screenshotOpts.clip = opts.screenshot.clip;
       }
