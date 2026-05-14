@@ -1,4 +1,21 @@
 const _ = require('lodash');
+const Joi = require('joi');
+
+// express-validation@1 calls the legacy static `Joi.validate(value, schema,
+// opts, cb)` which joi >=16 removed. Re-expose it on top of `schema.validate`
+// so we don't have to migrate to express-validation@4 (which has a different
+// option shape — no `contextRequest`, no per-section allowUnknown flags).
+if (typeof Joi.validate !== 'function') {
+  Joi.validate = (value, schema, options, callback) => {
+    const result = Joi.compile(schema).validate(value, options);
+    if (typeof callback === 'function') {
+      callback(result.error, result.value);
+      return undefined;
+    }
+    return result;
+  };
+}
+
 const validate = require('express-validation');
 const express = require('express');
 const render = require('./http/render-http');
